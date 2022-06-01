@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on プロってなんだろう</title>
+    <link>https://tetsup.github.io/categories/</link>
+    <description>Recent content in Categories on プロってなんだろう</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Wed, 01 Jun 2022 20:37:06 +0900</lastBuildDate><atom:link href="https://tetsup.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>自作キーボード</title>
+      <link>https://tetsup.github.io/categories/%E8%87%AA%E4%BD%9C%E3%82%AD%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%89/</link>
+      <pubDate>Wed, 01 Jun 2022 20:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/categories/%E8%87%AA%E4%BD%9C%E3%82%AD%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%89/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Raspberry Pi</title>
+      <link>https://tetsup.github.io/categories/raspberry-pi/</link>
+      <pubDate>Fri, 06 May 2022 21:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/categories/raspberry-pi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Ruby on Rails</title>
+      <link>https://tetsup.github.io/categories/ruby-on-rails/</link>
+      <pubDate>Fri, 06 May 2022 21:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/categories/ruby-on-rails/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux</title>
+      <link>https://tetsup.github.io/categories/linux/</link>
+      <pubDate>Thu, 14 Apr 2022 12:43:17 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/categories/linux/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>自作キーボード on プロってなんだろう</title>
+    <link>https://tetsup.github.io/categories/%E8%87%AA%E4%BD%9C%E3%82%AD%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%89/</link>
+    <description>Recent content in 自作キーボード on プロってなんだろう</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Wed, 01 Jun 2022 20:37:06 +0900</lastBuildDate><atom:link href="https://tetsup.github.io/categories/%E8%87%AA%E4%BD%9C%E3%82%AD%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%89/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>自キに入門して1か月でやったこと</title>
+      <link>https://tetsup.github.io/2022/06/%E8%87%AA%E3%82%AD%E3%81%AB%E5%85%A5%E9%96%80%E3%81%97%E3%81%A61%E3%81%8B%E6%9C%88%E3%81%A7%E3%82%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8/</link>
+      <pubDate>Wed, 01 Jun 2022 20:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/2022/06/%E8%87%AA%E3%82%AD%E3%81%AB%E5%85%A5%E9%96%80%E3%81%97%E3%81%A61%E3%81%8B%E6%9C%88%E3%81%A7%E3%82%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8/</guid>
+      <description>背景  コンパクトな手ぶらに近い状態で持ち運べるPCを追い求めていたら、必然的にキーボードが必要になった。 コンパクトなキーボードを物色していたら左右分離式の自作キーボードに行き着いた。 気が付いたらLily58が欲しくて止まらなくなり、（コンパクトなPCを３台買った直後なのに）ポチっていた。  やったこと  Lily58Pro(choc仕様)の衝動買い、組み立て  パステルカラーのキーキャップを買って、4歳の娘とキャッキャしながら色配置した 印字なしで通そうと思ったが、想定以上に打てなかったため、100均のシールを貼った   カラムスタッガードへの慣れ、練習  まだまだ遅い、ミスだらけ  どぇ     キーバインドの検討  LOWERの2段に数字部分の数字と記号 UPPERの右側2段にカーソルとマウスカーソル  マウス有効にするため早速コンパイル   右端の記号配置見直し まだ自然と打てないキーが多いが、普通のキーボードを繋ぎ変えなくても大丈夫なレベルにはなった   疑似US配列化  仕事でRDPするので切実 QMKのオーバーライド機能を使った 一つ記事書けそう(RDPだと設定によりshiftのタイミング遅れで誤動作する)    今後やりたいこと  タイピング練習(今まで通りの速度になるまでは&amp;hellip;) 上一列使わないようにして、より小さなキーボードを新調！(早すぎ&amp;hellip;?)  Corne Chocolateに憧れたけど、最初は無理だと思ったので&amp;hellip;   マウス操作やり肉すぎるので、トラックボールかジョイスティック付けて自前設計！  回路は昔USBデバイス作ったので、多分大丈夫 親指のキー配置も合わないので、変えたい&amp;hellip;    </description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ja-jp">
+  <head>
+    
+    <script type="application/ld+json">
+
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Railsで子要素の件数集計のN+1問題対処",
+  
+  "datePublished": "2022-05-06T21:37:06+09:00",
+  "dateModified": "2022-05-06T21:37:06+09:00",
+  "author": {
+    "@type": "Person",
+    "name": "tetsup",
+    
+    "image": "https://tetsup.github.io/images/844230_2308151439_400x400.jpg"
+    
+  },
+  "mainEntityOfPage": { 
+    "@type": "WebPage",
+    "@id": "https:\/\/tetsup.github.io\/2022\/05\/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6\/" 
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "プロってなんだろう",
+    
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tetsup.github.io/images/844230_2308151439_400x400.jpg"
+    }
+    
+  },
+  "description": "概要 子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。\n実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい\n   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   \u0026hellip; \u0026hellip;    普通に書いたやつ(N+1)  モデルでカウントする関数を作る  class Ticket \u0026lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement \u0026lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.",
+  "keywords": ["N+1, count, group"]
+}
+
+</script>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.96.0 with theme Tranquilpeak 0.5.3-BETA">
+<meta name="author" content="tetsup">
+<meta name="keywords" content="N&#43;1, count, group">
+<meta name="description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
+実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
+   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+
+
+<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
+実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
+   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Railsで子要素の件数集計のN&#43;1問題対処">
+<meta name="twitter:title" content="Railsで子要素の件数集計のN&#43;1問題対処">
+<meta property="og:url" content="https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/">
+<meta property="twitter:url" content="https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/">
+<meta property="og:site_name" content="プロってなんだろう">
+<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
+実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
+   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta name="twitter:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
+実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
+   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta property="og:locale" content="ja-jp">
+
+  
+    <meta property="article:published_time" content="2022-05-06T21:37:06">
+  
+  
+    <meta property="article:modified_time" content="2022-05-06T21:37:06">
+  
+  
+  
+    
+      <meta property="article:section" content="Ruby on Rails">
+    
+  
+  
+    
+      <meta property="article:tag" content="技術課題">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://tetsup.github.io/images/844230_2308151439_400x400.jpg">
+  <meta property="twitter:image" content="https://tetsup.github.io/images/844230_2308151439_400x400.jpg">
+
+
+
+
+
+
+    <title>Railsで子要素の件数集計のN&#43;1問題対処</title>
+
+    <link rel="icon" href="https://tetsup.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    
+    
+    <link rel="stylesheet" href="https://tetsup.github.io/css/style-h6ccsoet3mzkbb0wngshlfbaweimexgqcxj0h5hu4h82olsdzz6wmqdkajm.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://tetsup.github.io/" aria-label="">プロってなんだろう</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://tetsup.github.io/#about" aria-label="">
+    
+    
+    
+      
+        <img class="header-picture" src="https://tetsup.github.io/images/844230_2308151439_400x400.jpg" alt="" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://tetsup.github.io/#about" aria-label="">
+          <img class="sidebar-profile-picture" src="https://tetsup.github.io/images/844230_2308151439_400x400.jpg" alt="" />
+        </a>
+        <h4 class="sidebar-profile-name">tetsup</h4>
+        
+          <h5 class="sidebar-profile-bio">同じ会社に勤続16年のおじさん。人生や将来を考えたときに、自分のプロ像とは何かが実に曖昧であることに気づいて、業務外で模索しようと思い立ってブログを始めました。</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/" title="Home">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-home" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/categories" title="Categories">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-bookmark" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/tags" title="Tags">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-tags" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/archives" title="Archives">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-archive" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/#about" title="About">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-question" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/tetsup" target="_blank" rel="noopener" title="GitHub">
+    
+      <i class="sidebar-button-icon fab fa-lg fa-github" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://tetsup.github.io/index.xml" title="RSS">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-rss" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" id="top">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title">
+      Railsで子要素の件数集計のN&#43;1問題対処
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time datetime="2022-05-06T21:37:06&#43;09:00">
+        
+  
+  
+  
+  
+    2022-05-06
+  
+
+      </time>
+    
+    
+  
+  
+    <span></span>
+    
+      <a class="category-link" href="https://tetsup.github.io/categories/ruby-on-rails">Ruby on Rails</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown">
+            <div class="main-content-wrap">
+              <h2 id="概要">概要</h2>
+<p>子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。
+もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。</p>
+<h2 id="実現したいこと">実現したいこと</h2>
+<p>以下のテーブルのように、子要素のステータス別の件数を一覧にしたい</p>
+<table>
+<thead>
+<tr>
+<th>要件名</th>
+<th>チケットの枚数(未実施/実施中/完了)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>要件1</td>
+<td>0 / 0 / 10</td>
+</tr>
+<tr>
+<td>要件2</td>
+<td>5 / 1 / 3</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="普通に書いたやつn1">普通に書いたやつ(N+1)</h2>
+<ul>
+<li>モデルでカウントする関数を作る</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/ticket.rb" data-lang="ruby:app/models/ticket.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Ticket</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  belongs_to <span style="color:#e6db74">:requirement</span>
+</span></span><span style="display:flex;"><span>  enum <span style="color:#e6db74">:status</span>, <span style="color:#f92672">%</span>i<span style="color:#f92672">[</span>notyet doing done<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/requirement.rb" data-lang="ruby:app/models/requirement.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Requirement</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  has_many <span style="color:#e6db74">:tickets</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">count_tickets_by_status</span>(status)
+</span></span><span style="display:flex;"><span>    tickets<span style="color:#f92672">.</span>where(<span style="color:#e6db74">status</span>:)<span style="color:#f92672">.</span>count
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">count_all_tickets_by_status</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">Ticket</span><span style="color:#f92672">.</span>statuses<span style="color:#f92672">.</span>keys<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>s<span style="color:#f92672">|</span> count_tickets_by_status(s) }<span style="color:#f92672">.</span>join(<span style="color:#e6db74">&#39; / &#39;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/controllers/requirements_controller.rb" data-lang="ruby:app/controllers/requirements_controller.rb"><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>
+</span></span><span style="display:flex;"><span>    @requirements <span style="color:#f92672">=</span> current_user<span style="color:#f92672">.</span>requirements
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><pre tabindex="0"><code class="language-haml:app/views/requirements/index.html.haml" data-lang="haml:app/views/requirements/index.html.haml">%table.table
+  ...
+  - @requirements.each do |requirement|
+    = requirement.count_all_tickets_by_status
+</code></pre><p>当然、count_tickets_by_statusが呼び出されるたびにSQLが発行される(N+1どころか3N+1)</p>
+<h2 id="考えた2つの案">考えた2つの案</h2>
+<h3 id="一つ一つselectcountしたテーブルをjoinしてやる">一つ一つselect(count)したテーブルをjoinしてやる</h3>
+<ul>
+<li>かなり複雑化してしまった</li>
+<li>同じテーブルを何度もjoinしていてやばい</li>
+<li>SQLインジェクション的にもよろしくない(任意の文字受け付けたらアウト)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/ticket.rb" data-lang="ruby:app/models/ticket.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Ticket</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>  scope <span style="color:#e6db74">:add_count_by_requirements</span>, <span style="color:#f92672">-&gt;</span>(column_name) {
+</span></span><span style="display:flex;"><span>    group(<span style="color:#e6db74">:requirement_id</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">.</span>select(<span style="color:#e6db74">&#34;requirement_id, count(*) as </span><span style="color:#e6db74">#{</span>column_name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/requirement.rb" data-lang="ruby:app/models/requirement.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Requirement</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>  scope <span style="color:#e6db74">:join_count_if_status</span>, <span style="color:#f92672">-&gt;</span>(status) {
+</span></span><span style="display:flex;"><span>    joins(<span style="color:#e6db74">%(LEFT JOIN (</span><span style="color:#e6db74">#{</span><span style="color:#66d9ef">Ticket</span><span style="color:#f92672">.</span>where(<span style="color:#e6db74">status</span>:)<span style="color:#f92672">.</span>add_count_by_requirements(<span style="color:#e6db74">&#34;count_</span><span style="color:#e6db74">#{</span>status<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)<span style="color:#f92672">.</span>to_sql<span style="color:#e6db74">}</span><span style="color:#e6db74">)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          as sub_count_</span><span style="color:#e6db74">#{</span>status<span style="color:#e6db74">}</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          ON requirements.id = sub_count_</span><span style="color:#e6db74">#{</span>status<span style="color:#e6db74">}</span><span style="color:#e6db74">.requirement_id)</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">.</span>select(<span style="color:#e6db74">&#39;*&#39;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  scope <span style="color:#e6db74">:join_counts</span>, <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    join_count_if_status(<span style="color:#e6db74">:notyet</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>join_count_if_status(<span style="color:#e6db74">:doing</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>join_count_if_status(<span style="color:#e6db74">:done</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">count_all_tickets_by_status</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">#{</span>count_notyet<span style="color:#e6db74">}</span><span style="color:#e6db74"> / </span><span style="color:#e6db74">#{</span>count_doing<span style="color:#e6db74">}</span><span style="color:#e6db74"> / </span><span style="color:#e6db74">#{</span>count_done<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/controllers/requirements_controller.rb" data-lang="ruby:app/controllers/requirements_controller.rb"><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>
+</span></span><span style="display:flex;"><span>    @requirements <span style="color:#f92672">=</span> current_user<span style="color:#f92672">.</span>requirements<span style="color:#f92672">.</span>join_counts
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><h3 id="一つ一つアソシエーションを作ってしまう">一つ一つアソシエーションを作ってしまう</h3>
+<ul>
+<li>意外とシンプルに行けた
+<ul>
+<li>通常のカウントと同様にincludesとsizeで行ける</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/ticket.rb" data-lang="ruby:app/models/ticket.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Ticket</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  belongs_to <span style="color:#e6db74">:requirement</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/models/requirement.rb" data-lang="ruby:app/models/requirement.rb"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Requirement</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationRecord</span>
+</span></span><span style="display:flex;"><span>  has_many <span style="color:#e6db74">:tickets</span>
+</span></span><span style="display:flex;"><span>  has_many <span style="color:#e6db74">:tickets_notyet</span>, <span style="color:#f92672">-&gt;</span> { where(<span style="color:#e6db74">status</span>: <span style="color:#e6db74">:notyet</span>) }, <span style="color:#e6db74">class_name</span>: <span style="color:#e6db74">&#39;Ticket&#39;</span>
+</span></span><span style="display:flex;"><span>  has_many <span style="color:#e6db74">:tickets_doing</span>, <span style="color:#f92672">-&gt;</span> { where(<span style="color:#e6db74">status</span>: <span style="color:#e6db74">:doing</span>) }, <span style="color:#e6db74">class_name</span>: <span style="color:#e6db74">&#39;Ticket&#39;</span>
+</span></span><span style="display:flex;"><span>  has_many <span style="color:#e6db74">:tickets_done</span>, <span style="color:#f92672">-&gt;</span> { where(<span style="color:#e6db74">status</span>: <span style="color:#e6db74">:done</span>) }, <span style="color:#e6db74">class_name</span>: <span style="color:#e6db74">&#39;Ticket&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby:app/controllers/requirements_controller.rb" data-lang="ruby:app/controllers/requirements_controller.rb"><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>
+</span></span><span style="display:flex;"><span>    @requirements <span style="color:#f92672">=</span> current_user<span style="color:#f92672">.</span>requirements
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">.</span>includes(<span style="color:#e6db74">:tickets_notyet</span>)
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">.</span>includes(<span style="color:#e6db74">:tickets_doing</span>)
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">.</span>includes(<span style="color:#e6db74">:tickets_done</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><pre tabindex="0"><code class="language-haml:app/views/requirements/index.html.haml" data-lang="haml:app/views/requirements/index.html.haml">%table.table
+  ...
+  - @requirements.each do |r|
+    %tr
+      %td
+        r.name
+      %td
+        #{r.tickets_notyet.size} / #{r.tickets_doing.size} / #{r.tickets_done.size}
+</code></pre><h2 id="まとめ">まとめ</h2>
+<p>どちらもステータスの種類を増やしたときにはメンテが必要だが、後者の方が飛び道具を使っていない分、分かりやすいと思う</p>
+
+              
+
+
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small"></span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://tetsup.github.io/tags/%E6%8A%80%E8%A1%93%E8%AA%B2%E9%A1%8C/">技術課題</a>
+
+                  </div>
+                
+              
+            
+            
+<div class="post-actions-wrap">
+  <nav >
+    <ul class="post-actions post-action-nav">
+      
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--default tooltip--top" href="https://tetsup.github.io/2022/06/%E8%87%AA%E3%82%AD%E3%81%AB%E5%85%A5%E9%96%80%E3%81%97%E3%81%A61%E3%81%8B%E6%9C%88%E3%81%A7%E3%82%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8/" data-tooltip="自キに入門して1か月でやったこと" aria-label=": 自キに入門して1か月でやったこと">
+          
+              <i class="fa fa-angle-left"></i>
+              <span class="hide-xs hide-sm text-small icon-ml"></span>
+            </a>
+        </li>
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--default tooltip--top" href="https://tetsup.github.io/2022/05/raspberry-pi%E3%81%A7pulseaudio%E3%82%92system-mode%E3%81%AB%E3%81%99%E3%82%8B/" data-tooltip="Raspberry Piでpulseaudioをsystem modeにする" aria-label=": Raspberry Piでpulseaudioをsystem modeにする">
+          
+              <span class="hide-xs hide-sm text-small icon-mr"></span>
+              <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+      
+    </ul>
+  </nav>
+<ul class="post-actions post-action-share" >
+  
+    <li class="post-action hide-lg hide-md hide-sm">
+      <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </a>
+    </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-linkedin" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+  
+  
+    <li class="post-action">
+      <a class="post-action-btn btn btn--default" href="#disqus_thread" aria-label="">
+        <i class="far fa-comment"></i>
+      </a>
+    </li>
+  
+  <li class="post-action">
+    
+      <a class="post-action-btn btn btn--default" href="#top" aria-label="">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    
+    </a>
+  </li>
+</ul>
+</div>
+
+
+            
+  
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+    <script type="text/javascript">
+      var disqus_config = function() {
+        this.page.url = 'https:\/\/tetsup.github.io\/2022\/05\/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6\/';
+        
+          this.page.identifier = '\/2022\/05\/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6\/'
+        
+      };
+      (function() {
+        
+        
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+          document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+          return;
+        }
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        var disqus_shortname = 'hugo-tranquilpeak-theme';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+  
+
+
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2022 tetsup. 
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        
+<div class="post-actions-wrap">
+  <nav >
+    <ul class="post-actions post-action-nav">
+      
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--default tooltip--top" href="https://tetsup.github.io/2022/06/%E8%87%AA%E3%82%AD%E3%81%AB%E5%85%A5%E9%96%80%E3%81%97%E3%81%A61%E3%81%8B%E6%9C%88%E3%81%A7%E3%82%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8/" data-tooltip="自キに入門して1か月でやったこと" aria-label=": 自キに入門して1か月でやったこと">
+          
+              <i class="fa fa-angle-left"></i>
+              <span class="hide-xs hide-sm text-small icon-ml"></span>
+            </a>
+        </li>
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--default tooltip--top" href="https://tetsup.github.io/2022/05/raspberry-pi%E3%81%A7pulseaudio%E3%82%92system-mode%E3%81%AB%E3%81%99%E3%82%8B/" data-tooltip="Raspberry Piでpulseaudioをsystem modeにする" aria-label=": Raspberry Piでpulseaudioをsystem modeにする">
+          
+              <span class="hide-xs hide-sm text-small icon-mr"></span>
+              <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+      
+    </ul>
+  </nav>
+<ul class="post-actions post-action-share" >
+  
+    <li class="post-action hide-lg hide-md hide-sm">
+      <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </a>
+    </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/" title="" aria-label="">
+          <i class="fab fa-linkedin" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+  
+  
+    <li class="post-action">
+      <a class="post-action-btn btn btn--default" href="#disqus_thread" aria-label="">
+        <i class="far fa-comment"></i>
+      </a>
+    </li>
+  
+  <li class="post-action">
+    
+      <a class="post-action-btn btn btn--default" href="#top" aria-label="">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    
+    </a>
+  </li>
+</ul>
+</div>
+
+
+      </div>
+      
+<div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-times"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ftetsup.github.io%2F2022%2F05%2Frails%25E3%2581%25A7%25E5%25AD%2590%25E8%25A6%2581%25E7%25B4%25A0%25E3%2581%25AE%25E4%25BB%25B6%25E6%2595%25B0%25E9%259B%2586%25E8%25A8%2588%25E3%2581%25AEn-1%25E5%2595%258F%25E9%25A1%258C%25E5%25AF%25BE%25E5%2587%25A6%2F" aria-label="">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i><span></span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Ftetsup.github.io%2F2022%2F05%2Frails%25E3%2581%25A7%25E5%25AD%2590%25E8%25A6%2581%25E7%25B4%25A0%25E3%2581%25AE%25E4%25BB%25B6%25E6%2595%25B0%25E9%259B%2586%25E8%25A8%2588%25E3%2581%25AEn-1%25E5%2595%258F%25E9%25A1%258C%25E5%25AF%25BE%25E5%2587%25A6%2F" aria-label="">
+          <i class="fab fa-twitter" aria-hidden="true"></i><span></span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Ftetsup.github.io%2F2022%2F05%2Frails%25E3%2581%25A7%25E5%25AD%2590%25E8%25A6%2581%25E7%25B4%25A0%25E3%2581%25AE%25E4%25BB%25B6%25E6%2595%25B0%25E9%259B%2586%25E8%25A8%2588%25E3%2581%25AEn-1%25E5%2595%258F%25E9%25A1%258C%25E5%25AF%25BE%25E5%2587%25A6%2F" aria-label="">
+          <i class="fab fa-linkedin" aria-hidden="true"></i><span></span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+
+
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-times"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://tetsup.github.io/images/844230_2308151439_400x400.jpg" alt="" />
+    
+    <h4 id="about-card-name">tetsup</h4>
+    
+      <div id="about-card-bio">同じ会社に勤続16年のおじさん。人生や将来を考えたときに、自分のプロ像とは何かが実に曖昧であることに気づいて、業務外で模索しようと思い立ってブログを始めました。</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        製造業のデータエンジニア
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker-alt"></i>
+        <br/>
+        Japan
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://tetsup.github.io/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js" integrity="sha512-z+/WWfyD5tccCukM4VvONpEtLmbAm5LDu7eKiyMQJ9m7OfPEDL7gENyDRL3Yfe8XAuGsS2fS4xSMnl6d30kqGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script src="https://tetsup.github.io/js/script-yqzy9wdlzix4lbbwdnzvwx3egsne77earqmn73v9uno8aupuph8wfguccut.min.js"></script>
+
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-gE8KAQyFIzV1C9+GZ8TKJHZS2s+n7EjNtC+IMRn1l5+WYJTHOODUM6JSjZhFhqXmc7bG8Av6XXpckA4tYhflnw==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/apache.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-EWROca+bote+7Oaaar1F6y74iZj1r1F9rm/ly7o+/FwJopbBaWtsFDmaKoZDd3QiGU2pGacBirHJNivmGLYrow==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/go.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-GDVzAn0wpx1yVtQsRWmFc6PhJiLBPdUic+h4GWgljBh904O3JU10fk9EKNpVyIoPqkFn54rgL2QBG4BmUTMpiQ==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/http.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-UgZlma8NzkrDb/NWgmLIcTrH7i/CSnLLDRFqCSNF5NGPpjKmzyM25qcoXGOup8+cDakKyaiTDd7N4dyH4YT+IA==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/less.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-lot9koe73sfXIrUvIPM/UEhuMciN56RPyBdOyZgfO53P2lkWyyXN7J+njcxIIBRV+nVDQeiWtiXg+bLAJZDTfg==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/nginx.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-Zd3e7XxHP00TD0Imr0PIfeM0fl0v95kMWuhyAS3Wn1UTSXTkz0OhtRgBAr4JlmADRgiXr4x7lpeUdqaGN8xIog==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/puppet.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-qtqDO052iXMSP+5d/aE/jMtL9vIIGvONgTJziC2K/ZIB1yEGa55WVxGE9/08rSQ62EoDifS9SWVGZ7ihSLhzMA==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/scss.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-1NmkjnEDnwwwcu28KoQF8vs3oaPFokQHbmbtwGhFfeDsQZtVFI8zW2aE9O8yMYdpdyKV/5blE4pSWw4Z/Sv97w==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/stylus.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-B2wSfruPjr8EJL6IIzQr1eAuDwrsfIfccNf/LCEdxELCgC/S/ZMt/Uvk80aD79m7IqOqW+Sw8nbkvha20yZpzg==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/swift.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-28oDiQZGKUVN6wQ7PSLPNipOcmkCALXKwOi7bnkyFf8QiMZQxG9EQoy/iiNx6Zxj2cG2SbVa4dXKigQhu7GiFw==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/yaml.min.js"></script>
+  
+
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+
+
+    
+  </body>
+</html>
+

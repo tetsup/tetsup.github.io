@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on プロってなんだろう</title>
+    <link>https://tetsup.github.io/tags/</link>
+    <description>Recent content in Tags on プロってなんだろう</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Fri, 06 May 2022 21:37:06 +0900</lastBuildDate><atom:link href="https://tetsup.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>技術課題</title>
+      <link>https://tetsup.github.io/tags/%E6%8A%80%E8%A1%93%E8%AA%B2%E9%A1%8C/</link>
+      <pubDate>Fri, 06 May 2022 21:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/tags/%E6%8A%80%E8%A1%93%E8%AA%B2%E9%A1%8C/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>環境構築</title>
+      <link>https://tetsup.github.io/tags/%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89/</link>
+      <pubDate>Fri, 06 May 2022 21:37:06 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/tags/%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>トラブル</title>
+      <link>https://tetsup.github.io/tags/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB/</link>
+      <pubDate>Thu, 14 Apr 2022 12:43:17 +0900</pubDate>
+      
+      <guid>https://tetsup.github.io/tags/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
