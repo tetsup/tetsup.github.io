@@ -32,7 +32,7 @@
     }
     
   },
-  "description": "概要 子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。\n実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい\n   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   \u0026hellip; \u0026hellip;    普通に書いたやつ(N+1)  モデルでカウントする関数を作る  class Ticket \u0026lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement \u0026lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.",
+  "description": "概要 子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導",
   "keywords": ["N+1, count, group"]
 }
 
@@ -43,26 +43,18 @@
 <meta name="generator" content="Hugo 0.96.0 with theme Tranquilpeak 0.5.3-BETA">
 <meta name="author" content="tetsup">
 <meta name="keywords" content="N&#43;1, count, group">
-<meta name="description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
-実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
-   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta name="description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導">
 
 
-<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
-実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
-   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Railsで子要素の件数集計のN&#43;1問題対処">
 <meta name="twitter:title" content="Railsで子要素の件数集計のN&#43;1問題対処">
 <meta property="og:url" content="https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/">
 <meta property="twitter:url" content="https://tetsup.github.io/2022/05/rails%E3%81%A7%E5%AD%90%E8%A6%81%E7%B4%A0%E3%81%AE%E4%BB%B6%E6%95%B0%E9%9B%86%E8%A8%88%E3%81%AEn-1%E5%95%8F%E9%A1%8C%E5%AF%BE%E5%87%A6/">
 <meta property="og:site_name" content="プロってなんだろう">
-<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
-実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
-   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
-<meta name="twitter:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。
-実現したいこと 以下のテーブルのように、子要素のステータス別の件数を一覧にしたい
-   要件名 チケットの枚数(未実施/実施中/完了)     要件1 0 / 0 / 10   要件2 5 / 1 / 3   &hellip; &hellip;    普通に書いたやつ(N&#43;1)  モデルでカウントする関数を作る  class Ticket &lt; ApplicationRecord  belongs_to :requirement  enum :status, %i[notyet doing done] end class Requirement &lt; ApplicationRecord  has_many :tickets   def count_tickets_by_status(status)  tickets.where(status:).count  end   def count_all_tickets_by_status  Ticket.">
+<meta property="og:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導">
+<meta name="twitter:description" content="概要 子要素を条件別にカウントして一覧表示する際に、N&#43;1解消するのに苦戦しました。 もっとシンプルな書き方がありましたら、コメントなどでご指導">
 <meta property="og:locale" content="ja-jp">
 
   
@@ -290,8 +282,8 @@
           <div class="post-content markdown">
             <div class="main-content-wrap">
               <h2 id="概要">概要</h2>
-<p>子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。
-もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。</p>
+<p>子要素を条件別にカウントして一覧表示する際に、N+1解消するのに苦戦しました。</p>
+<p>もっとシンプルな書き方がありましたら、コメントなどでご指導いただきたいです。</p>
 <h2 id="実現したいこと">実現したいこと</h2>
 <p>以下のテーブルのように、子要素のステータス別の件数を一覧にしたい</p>
 <table>

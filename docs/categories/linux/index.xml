@@ -13,7 +13,7 @@
       <pubDate>Thu, 14 Apr 2022 12:43:17 +0900</pubDate>
       
       <guid>https://tetsup.github.io/2022/04/linux%E3%82%A2%E3%83%83%E3%83%97%E3%83%87%E3%83%BC%E3%83%88%E3%81%A7gpu%E3%81%8C%E4%BD%BF%E3%81%88%E3%81%AA%E3%81%8F%E3%81%AA%E3%81%A3%E3%81%9Flinux-headers-amd64%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB/</guid>
-      <description>問題点  Linuxカーネルの更新(5.10.0-12 -&amp;gt; 5.10.0-13)後、以下のエラーが出てGPUが使えなくなった  [FAILED] Failed to start NVIDIA Persistence Daemon. 結論  linux-headers-amd64がインストールされていない為、カーネルドライバを更新できなかった linux-headers-amd64をインストールしたうえでcuda(or nvidia driver)をインストールしなおせば回復  # apt install linux-headers-amd64 # apt install cuda </description>
+      <description>問題点 Linuxカーネルの更新(5.10.0-12 -&amp;gt; 5.10.0-13)後、以下のエラーが出てGPUが使えなくなった [FAILED] Failed to start NVIDIA Persistence Daemon. 結論 lin</description>
     </item>
     
   </channel>

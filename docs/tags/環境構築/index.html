@@ -269,8 +269,7 @@
     </div>
     <div class="postShorten-excerpt">
       
-        前置き 概要 Raspberry Pi Zeroを軽量なオーディオモジュールとするべく、軽量なディストリビューション&quot;Diet Pi&quot;に入れ替えた。 pulseaudioをユーザーログイン如何を問わず起動させておきたいため、インストール時のデフォルトであるユーザーモードを止め、システムモードで起動するように変更した。
-pulseaudioのモード  ユーザーモード  aptでインストールするとデフォルトでこのモードになる。pulseaudioの使い方としては推奨されている模様。root以外のユーザーログイン時に、systemdにより自動起動される。   システムモード  全ユーザー共通のシステムとして起動するモード。起動すると本当にわかっているかとログで問われる。推奨されていない模様だが、ユーザーとしてログインせずに使う場合はこちら。   デーモンモード(厳密にはdaemonizeオプションで切り替えられる)  コマンドラインから起動したときに、バックグラウンド実行するモード。systemdで使用する場合は、systemdにpulseaudioのプロセスを掴ませるため、OFFにしなければならない。 よくcrontabなどからシェルスクリプトなどで起動する事例が見られる。    なぜシステムモードにしたいのか  電源を入れただけで立ち上がるオーディオミキサー的なモノが作りたい。 ユーザーとしてcronなどで起動する方法もあるが、systemdで管理したほうが、再起動操作などの扱いが楽になると考えた。 そもそもraspiにユーザーとしてログインして使うことを考えていない(ユーザーはrootのみ)  システムモードで動作するまで aptでインストール # apt update &amp;&amp; apt install -y pulseaudio システムモードで起動するための設定  /etc/pulse/system.paに対し、下記2点を変更  下記の部分に、auth-anonymous=1を追記    load-module module-native-protocol-unix auth-anonymous=1  末尾に、bluetooth関連モジュール読込みを追記  load-module module-bluetooth-policy load-module module-bluetooth-discover systemdのユーザー設定無効化  /etc/systemd/user配下にダミーのpulseaudio.serviceを配置  # ln -s /dev/null /etc/systemd/user/pulseaudio.service # ln -s /dev/null /etc/systemd/user/pulseaudio.
+        前置き 概要 Raspberry Pi Zeroを軽量なオーディオモジュールとするべく、軽量なディストリビューション&quot;Diet Pi&quot;に入れ替えた。
       
       <p>
         
